@@ -10,7 +10,6 @@ app.use(cors());
 app.use(express.json());
 
 // Import routes
-const diolaDatasetRouter = require('./routes/diola-dataset.routes');
 const motsRouter = require('./routes/mots.routes');
 const authRouter = require('./routes/auth.routes');
 const favoritesRouter = require('./routes/favorites.routes');
@@ -21,7 +20,6 @@ const dictionaryRouter = require('./routes/dictionary.routes');
 const { pool } = require('./config/db');
 
 // Routes
-app.use('/api/diola', diolaDatasetRouter);
 app.use('/api/mots', motsRouter); // Keep for backward compatibility
 app.use('/api/auth', authRouter);
 app.use('/api/favorites', favoritesRouter);
@@ -48,20 +46,17 @@ app.get('/api/info', async (req, res) => {
   }
 
   res.json({
-    name: 'Senoufo/Dioula Dataset API',
+    name: 'Senoufo API',
     version: '1.0.0',
     database: dbStatus,
     endpoints: {
       health: 'GET /health',
-      diolaDataset: 'GET /api/diola/dataset/*',
-      validateCredentials: 'GET /api/diola/validate-credentials',
       mots: 'GET /api/mots',
-      categories: 'GET /api/mots/categories'
-    },
-    mdc: {
-      connected: !!process.env.MDC_API_KEY,
-      userId: process.env.MDC_USER_ID ? 'configured' : 'not configured',
-      datasetId: process.env.MDC_DATASET_ID || 'cmn1q3sgr00xwmm07t7te56k4'
+      categories: 'GET /api/mots/categories',
+      auth: 'GET /api/auth',
+      favorites: 'GET /api/favorites',
+      progress: 'GET /api/progress',
+      dictionary: 'GET /api/dictionary'
     }
   });
 });
@@ -98,13 +93,6 @@ app.listen(PORT, async () => {
   } catch (err) {
     console.log('⚠ Database connection failed:', err.message);
   }
-
-  if (process.env.MDC_API_KEY) {
-    console.log('✓ MDC API credentials configured');
-    console.log(`✓ Dataset ID: ${process.env.MDC_DATASET_ID || 'cmn1q3sgr00xwmm07t7te56k4'}`);
-  } else {
-    console.log('⚠ MDC API credentials NOT configured - using cached data');
-  }
   
   console.log('=====================================');
   console.log('Available Endpoints:');
@@ -112,15 +100,10 @@ app.listen(PORT, async () => {
   console.log('  • GET /api/info - API information');
   console.log('  • GET /api/mots - All mots (with pagination)');
   console.log('  • GET /api/mots/categories - All categories');
-  console.log('  • GET /api/mots/populaires - Popular mots');
-  console.log('  • GET /api/diola/validate-credentials - Validate MDC credentials');
-  console.log('  • GET /api/diola/dataset/info - Dataset information');
-  console.log('  • GET /api/diola/dataset/stats - Dataset statistics');
-  console.log('  • GET /api/diola/dataset/resources - Dataset resources');
-  console.log('  • GET /api/diola/dataset/samples - Sample sentences');
-  console.log('  • GET /api/diola/dataset/metadata - Metadata fields');
-  console.log('  • GET /api/diola/dataset/files - Dataset files');
-  console.log('  • GET /api/diola/dataset/download-link - Download link');
+  console.log('  • GET /api/auth - Authentication routes');
+  console.log('  • GET /api/favorites - Favorites management');
+  console.log('  • GET /api/progress - Progress tracking');
+  console.log('  • GET /api/dictionary - Dictionary helper');
   console.log('=====================================');
   console.log('');
 });
